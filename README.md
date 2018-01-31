@@ -1,2 +1,23 @@
-# Rubik-Discrete-Solver
-A rubil cube solver using discrete graphs
+# Rubik-Discrete-Solver - ES
+
+Este es el proyecto de "solucionador" del cubo de Rubik basado en grafos discretos con un algoritmo de tipo A*. Dados los límites de tiempo, el proyecto se ha desarrollado desde la perspectiva de entregar un producto mínimo viable, desarrollando la idea por etapas de complejidad creciente. Se ha comenzado implementando el algoritmo de la manera más sencilla posible con la heurística más sencilla, aunque estas probablemente no son la mejor solución para el proyecto. Destacar que es muy probable que haya cometido varias aberraciones en Python por total desconocimiento.
+
+En general el procedimiento es el siguiente: se parte desde un cubo resuelto al que se aplica un número n de movimientos aleatorios. Se desea resolver el cubo en el menor tiempo posible sin utilizar combinaciones preprogramadas, simplemente explorando eficientemente el espacio de configuraciones del cubo.
+
+El proyecto hasta el momento incluye 3 etapas de desarrollo:
+
+- En solver.py se comienza a abordar el problema. El algoritmo está implementado mediante una cola con pripridad en la que se introducen los nodos, junto con sus distancias, y se utiliza el nodo con menor distancia. La heurística consiste simplemente en comparar el estado actual con un cubo resuelto, penalizando los caminos con más movimientos. solver.py puede resolver muchos cubos con 5 movimientos aleatorios, pero en muchos otros se queda atascado. Probablemente los resolverá eventualmente, pero no lo he comprobado por falta de paciencia.
+
+- En solver2.py se restringen los movimientos del cubo. En un cubo de 3x3 el movimiento de la capa intermedia, aquella que contiene los centros, no solo es redundate sino que añade bastante complejidad al problema. Se ha modificado la librería base (rub_cube2.py) para que los movimientos aleatorios no incluyan los movimientos con esta capa. La penalización por movimiento en la heurística se incrementa para desfavorecer caminos muy largos. Se ha impuesto además un límite de 50.000 nodos examinados, a partir de los cuales he considerado que el programa "se atasca" en mínimos locales y no logra resolver el cubo, aunque de nuevo a la larga debería hacerlo. Hay una mejora apreciable en el desempeño, resolviendo mayor proporción de cubos con hasta 6 movimientos aleatorios rápidamente, aunque sigue estando lejos del objetivo.
+
+- En solver3.py se modifica la heurística evaluando regiones continuas además de correspondencia. Eso se ha implementado siguiendo un algoritmo de flood fill sobre cada cara del cubo. El coste por movimiento ahora es cuadrático y mucho más elevado en proporción. Aunque la heurística aún no es la deseada, la modificación de los costes ha hecho que el programa salga con mucha mayor facilidad de los mínimos locales y examine antes en anchura que en profundidad, llegando en general a mejores resultados. Además se ha añadido la iteración del propio algoritmo: si no se ha resuelto en cubo en el límite de nodos visitados, se toma el mejor nodo y se repite el algoritmo desde éste, si su coste es mejor que el obtenido hasta ahora. En cada iretación el coste de los movimientos desciende para buscar caminos más largos. El programa ha mejorado significativamente, resolviendo la mayoría de cubos con 10 movimientos aleatorios y atascándose mucho menos en mínimos locales. Sin embargo, como se observa cuando el programa empieza a iterar el algoritmo, la heurística sigue dejando bastante que desear. Se puede ver cómo el algoritmo progresa según la heurística, pero esta le hace converger hacia posiciones que claramente no están mucho más cerca de la solución.
+
+Actualmente se plantean varias mejoras mejoras:
+
+- Cambiar el sistema de referencia: en lugar de dejar fijos los centros, dejar fija una de las esquinas. Esto permite trabajar con cubos con número par de piezas por arista.
+
+- Reemplazar la codificación actual por codificación por piezas. Esto permitiría comprobar con facilidad la adyacencia de grupos de piezas correctas entre diferentes caras, lo cual permitiría elaborar una mejor heurística (probablemente).
+
+- El cambio anterior también permitiría cambiar el enfoque. La idea original para el programa era simplificar al máximo los movimientos y evaluar el árbol entero con una profundidad de unos pocos movimientos. Esto es debido a que en la solución del cubo de Rubik se salta con frecuencia entre mínimos locales cada vez más cercanos al estado final. Con la correcta codificación se podría reducir los movimientos a 12, lo que significaría 20.736 nodos con 4 movimientos y 248.832 con 5 movimientos si se examinase el árbol completo. Optimizando el proceso se podría hallar la mejor configuración posible e iterar el algoritmo, lo que podría suponer (o no) un incremento en el desempeño del programa.
+
+- Sería deseable optimizar todos los algoritmos involucrados en el proceso, aunque sería necesaria una mayor familiaridad con Python para ello.
